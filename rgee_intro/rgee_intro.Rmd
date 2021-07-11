@@ -180,8 +180,8 @@ viz <- list(min= 100,
             palette = cpt(pal = 'gmt_GMT_dem1',n = 10))
 
 Map$addLayer(eeObject = dem,visParams = viz) # new feacture gradient legend 
-# slope <- ee$Terrain$slope(dem)
-# Map$addLayer(eeObject = slope,visParams = list(min=0.2,max=0.75))
+slope <- ee$Terrain$slope(dem)
+Map$addLayer(eeObject = slope,visParams = list(min=0.2,max=0.75))
 
 ```
 
