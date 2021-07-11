@@ -29,7 +29,7 @@ Las imágenes satélites son proporcionadas por Landsat 8, estas son imágenes e
 Además, con base en la definición de nuestro problema, necesitamos un shapefile de los distritos peruanos en donde se encuentra el distrito de Jesús María, esto nos proporcionará una información geográfica proporcionado por el Instituto Geográfico Nacional del Perú.
 
 ```{r echo = FALSE, fig.align='center', comment='Figura 1. Metodología del Trabajo.'}
-knitr::include_graphics('DiagramaFlujoMetodologia.jpg')
+knitr::include_graphics('Img/DiagramaFlujoMetodologia.jpg')
 ```
 
 ## 4. Recopilación de la información
@@ -39,7 +39,7 @@ En este apartado, produciremos información relevante dentro del distrito de Jes
 Según la Municipalidad de Jesús María se establecieron nueve sectores vecinales para una mejor administración.
 
 ```{r echo = FALSE, fig.align='center', comment='Figura 2. Sectores del barrio en el distrito de Jesús María'}
-knitr::include_graphics('Sectores.png')
+knitr::include_graphics('Img/Sectores.png')
 ```
 
 Según el Instituto Metropolitano de Planificación de la zonificación de usos del suelo en Lima Metropolitana se dividió el distrito de Jesús María en seis áreas principales.
@@ -181,7 +181,7 @@ Y otras islas calor...
 a) El NDVI es mayor en áreas de recreación por tener áreas verdes y menor en áreas comerciales, así mismo los equipos y áreas residenciales tienen valores promedio bajos debido a su escasa o nula vegetación.
 
 ```{r echo = FALSE, fig.align='center', comment='Figura4. Verano 2016-2020 Promedio del NDVI por tipo de área.'}
-knitr::include_graphics('interpretacionislas.png')
+knitr::include_graphics('Img/interpretacionislas.png')
 ```
 
 b) Todas estas áreas tienen un albedo similar y con poca variación, el los promedios más altos de albedo son del equipo y especial áreas regulatorias, principalmente porque están pintadas en colores claros que reflejan el calor incidente. Por otro lado, las áreas de recreación y las calles construidas con asfalto tienen valores de albedo más bajos.
