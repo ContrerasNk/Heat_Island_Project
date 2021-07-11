@@ -139,6 +139,7 @@ library(mapedit)
 library(raster)
 library(tmap)
 library(cptcity)
+library(leaflet)
 ```
 
 ### Explorando el catálogo de datos de GEE
@@ -179,8 +180,9 @@ viz <- list(min= 100,
             max = 4500,
             palette = cpt(pal = 'gmt_GMT_dem1',n = 10))
 
-Map$addLayer(eeObject = dem,visParams = viz) # new feacture gradient legend 
 slope <- ee$Terrain$slope(dem)
+
+Map$addLayer(eeObject = dem,visParams = viz)+ # new feacture gradient legend 
 Map$addLayer(eeObject = slope,visParams = list(min=0.2,max=0.75))
 
 ```
@@ -193,7 +195,7 @@ Map$addLayer(eeObject = slope,visParams = list(min=0.2,max=0.75))
 ambito <- mapedit::drawFeatures()
 ambito <- ambito %>% sf_as_ee()
 ambito_dem <- dem$clip(ambito)
-Map$centerObject(ambito)
+Map$centerObject(ambito) +
 Map$addLayer(ambito_dem,visParams = viz)
 
 ```
@@ -207,9 +209,9 @@ point <- mapedit::drawFeatures()
 point <- st_geometry(point) %>% sf_as_ee()
 
 lista <- ee$ImageCollection('LANDSAT/LC08/C01/T1_TOA')$
-        filterDate('2020-07-01','2020-10-05')$
+        filterDate('2020-01-01','2020-10-05')$
         filterBounds(point)$
-        filterMetadata('CLOUD_COVER','less_than',5)
+        filterMetadata('CLOUD_COVER','less_than',20)
 
 catalogo <- ee_get_date_ic(lista)
 
@@ -238,7 +240,7 @@ l8 %>%
 ### Visualizando escenas de Sentinel
 
 ```{r,eval=FALSE}
-peru  <- ee$FeatureCollection('users/antonybarja8/peru')
+peru  <- ee$FeatureCollection('users/julius013199/Peru')
 
 so2_antes <- ee$ImageCollection('COPERNICUS/S5P/NRTI/L3_SO2')$
         select('SO2_column_number_density')$
@@ -299,7 +301,7 @@ box <- ee$Geometry$Rectangle(coords = c(-71.72,-15.67,-71.67,-15.64),
 coleccion_sen2 <- ee$ImageCollection('COPERNICUS/S2_SR')$
   filterDate('2020-06-23','2020-06-28')$
   filterBounds(box)$
-  filterMetadata('CLOUDY_PIXEL_PERCENTAGE','less_than',40)
+  filterMetadata('CLOUDY_PIXEL_PERCENTAGE','less_than',50)
 
 ee_get_date_ic(coleccion_sen2)
 
