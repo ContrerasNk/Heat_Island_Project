@@ -14,7 +14,7 @@ link-citations: yes
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+# knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## 1. Introducción a Google Earth Engine
@@ -139,36 +139,35 @@ library(mapedit)
 library(raster)
 library(tmap)
 library(cptcity)
-
 ```
 
 ### Explorando el catálogo de datos de GEE
 
 ```{r,eval=FALSE}
-ee_Initialize('antony.barja8')
+ee_Initialize('juliocontreras1', drive = TRUE)
 ```
 
 ```{r,eval=FALSE}
-lista <- ee_search_dataset() %>% 
-        ee_search_provider_list() %>%
-        as_tibble()
-head(lista)
+# lista <- ee_search_dataset() %>%
+#         ee_search_provider_list() %>%
+#         as_tibble()
+# head(lista)
 # ee_search_dataset() %>% ee_search_title_list()
-
-ee_search_dataset() %>% 
-        ee_search_type('ImageCollection') %>% 
-        ee_search_provider('USGS') %>% 
-        ee_search_tags('reflectance')
+# 
+# ee_search_dataset() %>%
+#         ee_search_type('ImageCollection') %>%
+#         ee_search_provider('USGS') %>%
+#         ee_search_tags('reflectance')
 ```
 
 
 
 ```{r,eval=FALSE}
-
-ee_search_dataset() %>% 
-        ee_search_provider('European Union/ESA/Copernicus') %>%
-        ee_search_tags('radar')
-        
+# 
+# ee_search_dataset() %>% 
+#         ee_search_provider('European Union/ESA/Copernicus') %>%
+#         ee_search_tags('radar')
+#         
 ```
 
 ### Visualizando Modelos de Elevación Digital 
