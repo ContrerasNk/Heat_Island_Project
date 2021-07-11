@@ -171,7 +171,7 @@ VERANO|ST MIN (° C)|ST MAX (° C)|ST PROMEDIO (° C)
 2020  |23,87        |29,32       |26,6
 
 ```{r echo = FALSE, fig.align='center', comment='Figura 3 Verano de 2016: Islas de calor urbano en el distrito de Jesús María.'}
-knitr::include_graphics('Islas.png')
+knitr::include_graphics('Img/Islas.png')
 ```
 Y otras islas calor...
 
