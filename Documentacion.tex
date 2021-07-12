@@ -43,6 +43,46 @@
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
 \usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
 \usepackage{longtable,booktabs}
 % Correct order of tables after \paragraph or \subparagraph
 \usepackage{etoolbox}
@@ -78,6 +118,32 @@ Metropolitana.}
 
 \begin{document}
 \maketitle
+
+{
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# librerias}
+\KeywordTok{library}\NormalTok{(tidyverse)}
+\KeywordTok{library}\NormalTok{(sf)}
+\KeywordTok{library}\NormalTok{(rgee)}
+\KeywordTok{library}\NormalTok{(mapedit)}
+\KeywordTok{library}\NormalTok{(raster)}
+\KeywordTok{library}\NormalTok{(tmap)}
+\KeywordTok{library}\NormalTok{(cptcity)}
+\KeywordTok{library}\NormalTok{(leaflet)}
+\KeywordTok{library}\NormalTok{(leaflet.extras)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Inicializando sesion en GEE}
+\KeywordTok{ee_Initialize}\NormalTok{(}\StringTok{'juliocontreras1'}\NormalTok{, }\DataTypeTok{drive =}\OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
 \hypertarget{introducciuxf3n}{%
 \section{Introducción}\label{introducciuxf3n}}
@@ -199,7 +265,88 @@ clasificándolo por sectores vecinales y por los tipos de áreas que
 predominan. Según la Municipalidad de Jesús María se establecieron nueve
 sectores vecinales para una mejor administración.
 
-\begin{center}\includegraphics{Img/Sectores} \end{center}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Este es un mapa dinamico}
+
+\CommentTok{# Datos}
+\NormalTok{SuelosJM <-}\StringTok{ }\NormalTok{ee}\OperatorTok{$}\KeywordTok{FeatureCollection}\NormalTok{(}\StringTok{'users/juliocontreras1/JesusMSueloU'}\NormalTok{)}
+\NormalTok{jm <-}\StringTok{ }\KeywordTok{ee_as_sf}\NormalTok{(SuelosJM) }\OperatorTok{%>%}\StringTok{ }\KeywordTok{st_cast}\NormalTok{(}\StringTok{"MULTIPOLYGON"}\NormalTok{)}
+
+\CommentTok{# Colores y variables necesarias para generar grupos}
+\NormalTok{Number_JmType <-}\StringTok{ }\NormalTok{jm}\OperatorTok{$}\NormalTok{Type }\OperatorTok{%>%}\StringTok{ }\KeywordTok{unique}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }\KeywordTok{length}\NormalTok{() }\CommentTok{# Numero de especies}
+\NormalTok{Names_JmType <-}\StringTok{ }\NormalTok{jm}\OperatorTok{$}\NormalTok{Type }\OperatorTok{%>%}\StringTok{ }\KeywordTok{unique}\NormalTok{() }\CommentTok{# Nombre de las especies}
+\NormalTok{Colores <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"#ef3b2c"}\NormalTok{, }\StringTok{"#ffffff"}\NormalTok{, }\StringTok{"#807dba"}\NormalTok{, }\StringTok{"#33a02c"}\NormalTok{, }\StringTok{"#fed976"}\NormalTok{, }
+             \StringTok{"#000000"}\NormalTok{, }\StringTok{"#0570b0"}\NormalTok{) }\CommentTok{# colorbrewer2, Colores de las especies seran}
+\NormalTok{pal <-}\StringTok{ }\KeywordTok{colorFactor}\NormalTok{(Colores, }\DataTypeTok{domain =}\NormalTok{ Names_JmType) }\CommentTok{# Generamos la paleta}
+
+\CommentTok{# Mapa SuelosU}
+\KeywordTok{leaflet}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{addTiles}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{addPolygons}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ jm,}
+              \DataTypeTok{fillColor =} \OperatorTok{~}\KeywordTok{pal}\NormalTok{(Type),}
+              \DataTypeTok{fillOpacity =} \FloatTok{0.8}\NormalTok{,}
+              \DataTypeTok{weight =} \FloatTok{0.5}\NormalTok{,}
+              \DataTypeTok{label =} \OperatorTok{~}\NormalTok{Type,}
+              \DataTypeTok{color =} \StringTok{"#000000"}\NormalTok{,}
+              \DataTypeTok{group =} \StringTok{"SuelosU"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{addLegend}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ jm, }\StringTok{"bottomright"}\NormalTok{, }\DataTypeTok{pal =}\NormalTok{ pal, }
+                \DataTypeTok{values =} \OperatorTok{~}\NormalTok{Type, }\DataTypeTok{title =} \StringTok{"Suelos Urbanos"}\NormalTok{, }
+                \DataTypeTok{opacity =} \FloatTok{0.8}\NormalTok{, }\DataTypeTok{group =} \StringTok{"Leyenda"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{addLayersControl}\NormalTok{(}\DataTypeTok{overlayGroups =} \StringTok{"SuelosU"}\NormalTok{, }
+                   \DataTypeTok{options =} \KeywordTok{layersControlOptions}\NormalTok{(}\DataTypeTok{collapsed =} \OtherTok{TRUE}\NormalTok{))}
+
+\CommentTok{#%>% # Falta popup = ~colum la hacer clic}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Este es más dinámico}
+
+\CommentTok{# Datos}
+\CommentTok{# SuelosJM <- ee$FeatureCollection('users/juliocontreras1/JesusMSueloU')}
+\CommentTok{# jm <- ee_as_sf(SuelosJM) %>% st_cast("MULTIPOLYGON")}
+
+\NormalTok{Number_JmType <-}\StringTok{ }\NormalTok{jm}\OperatorTok{$}\NormalTok{Type }\OperatorTok{%>%}\StringTok{ }\KeywordTok{unique}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }\KeywordTok{length}\NormalTok{() }\CommentTok{# Numero de especies}
+\NormalTok{Names_JmType <-}\StringTok{ }\NormalTok{jm}\OperatorTok{$}\NormalTok{Type }\OperatorTok{%>%}\StringTok{ }\KeywordTok{unique}\NormalTok{() }\CommentTok{## Nombre de las especies}
+\NormalTok{Colores <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"#ef3b2c"}\NormalTok{, }\StringTok{"#ffffff"}\NormalTok{, }\StringTok{"#807dba"}\NormalTok{, }\StringTok{"#33a02c"}\NormalTok{, }\StringTok{"#fed976"}\NormalTok{, }
+             \StringTok{"#000000"}\NormalTok{, }\StringTok{"#0570b0"}\NormalTok{) }\CommentTok{# colorbrewer2, Colores de las especies seran}
+\NormalTok{pal <-}\StringTok{ }\KeywordTok{colorFactor}\NormalTok{(Colores, }\DataTypeTok{domain =}\NormalTok{ Names_JmType) }\CommentTok{# Generamos la paleta}
+
+
+\CommentTok{# Partimos un sf en varios sf}
+\NormalTok{Spp_Pres <-}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(Names_JmType)) \{}
+\NormalTok{  Spp_Pres[[i]] <-}\StringTok{ }\NormalTok{jm }\OperatorTok{%>%}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(Type }\OperatorTok{==}\StringTok{ }\NormalTok{Names_JmType[i])}
+\NormalTok{\}}
+\KeywordTok{names}\NormalTok{(Spp_Pres) <-}\StringTok{ }\NormalTok{Names_JmType}
+
+\CommentTok{# Ploteamos cada sf, pero sin leyenda}
+\NormalTok{Spp_Map <-}\StringTok{ }\KeywordTok{leaflet}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }\KeywordTok{addTiles}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(Spp_Pres)) \{}
+\NormalTok{  Spp_Map <-}\StringTok{ }\NormalTok{Spp_Map }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{addPolygons}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ Spp_Pres[[i]],}
+              \DataTypeTok{fillColor =} \OperatorTok{~}\KeywordTok{pal}\NormalTok{(Type),}
+              \DataTypeTok{fillOpacity =} \FloatTok{0.8}\NormalTok{,}
+              \DataTypeTok{weight =} \FloatTok{0.5}\NormalTok{,}
+              \DataTypeTok{label =} \OperatorTok{~}\NormalTok{Type,}
+              \DataTypeTok{color =} \StringTok{"#000000"}\NormalTok{,}
+              \DataTypeTok{group =}\NormalTok{  Names_JmType[i])}
+\NormalTok{\}}
+
+\CommentTok{# Agremos leyenda y su visualizador por grupos, tanto leyenda como suelos}
+\NormalTok{Spp_Map <-}\StringTok{ }\NormalTok{Spp_Map }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{addLegend}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ jm, }\StringTok{"bottomright"}\NormalTok{, }\DataTypeTok{pal =}\NormalTok{ pal, }
+                \DataTypeTok{values =} \OperatorTok{~}\NormalTok{Type, }\DataTypeTok{title =} \StringTok{"Suelos Urbanos"}\NormalTok{, }
+                \DataTypeTok{opacity =} \FloatTok{0.8}\NormalTok{, }\DataTypeTok{group =} \StringTok{"Leyenda"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{addLayersControl}\NormalTok{(}\DataTypeTok{overlayGroups =} \KeywordTok{c}\NormalTok{(}\StringTok{"Leyenda"}\NormalTok{, Names_JmType),}
+                                      \DataTypeTok{options =} \KeywordTok{layersControlOptions}\NormalTok{(}\DataTypeTok{collapsed =} \OtherTok{TRUE}\NormalTok{))}
+\NormalTok{Spp_Map}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=7.82in]{Img/Sectores} \end{center}
 
 \hypertarget{recopilaciuxf3n-de-la-base-de-datos-hidrometeoroluxf3gicos-y-de-calidad-del-aire-del-senamhi}{%
 \paragraph{5.1.2. Recopilación de la base de datos hidrometeorológicos y
@@ -265,9 +412,9 @@ utilizada en el Landsat 8 es la número 10 con su correspondiente DN
 Landsat 8.
 
 \hypertarget{radiaciuxf3n-a-temperatura-de-brillo-en-grados-celsius}{%
-\subparagraph{\texorpdfstring{\textbf{\emph{Radiación a temperatura de
-brillo en grados
-Celsius}}}{Radiación a temperatura de brillo en grados Celsius}}\label{radiaciuxf3n-a-temperatura-de-brillo-en-grados-celsius}}
+\subparagraph{\texorpdfstring{\emph{Radiación a temperatura de brillo en
+grados
+Celsius}}{Radiación a temperatura de brillo en grados Celsius}}\label{radiaciuxf3n-a-temperatura-de-brillo-en-grados-celsius}}
 
 \[ TB = \frac{K_{2}}{\ln([\frac{K_{1}}{L\lambda}])} - 273.15\]
 
@@ -454,7 +601,7 @@ VERANO & ST MIN (° C) & ST MAX (° C) & ST PROMEDIO (° C)\tabularnewline
 \bottomrule
 \end{longtable}
 
-\begin{center}\includegraphics{Img/Islas} \end{center}
+\begin{center}\includegraphics[width=7.08in]{Img/Islas} \end{center}
 
 Y otras islas calor\ldots{}
 
@@ -471,7 +618,7 @@ calculados}\label{interpretaciuxf3n-los-resultados-de-los-datos-calculados}}
   tienen valores promedio bajos debido a su escasa o nula vegetación.
 \end{enumerate}
 
-\begin{center}\includegraphics{Img/interpretacionislas} \end{center}
+\begin{center}\includegraphics[width=0.8\linewidth]{Img/interpretacionislas} \end{center}
 
 \begin{enumerate}
 \def\labelenumi{\alph{enumi})}
@@ -595,7 +742,7 @@ Con los datos extraídos disponibles, realizamos una regresión lineal
 múltiple para visualizar la influencia de las variables sobre la
 temperatura. Los resultados fueron los siguientes:
 
-\[ T°_{2016}= 33.6102 + 0.0007 × PM_{10} + 0.0144 × O_{3} + 0.008 × NO_{2} + 0.6376 × CO - \\ \hspace{2em}1.1466 × Precipitation - 0.1415 × Humidity + 0.3609 × WindSpeed\]
+\[ T°_{2016}= 33.6102 + 0.0007 × PM_{10} + 0.0144 × O_{3} + 0.008 × NO_{2} + 0.6376 × CO - 1.1466 × Precipitation - 0.1415 × Humidity + 0.3609 × WindSpeed\]
 Y las otras regresiones\ldots{}
 
 \hypertarget{interpretaciuxf3n-de-resultados}{%
