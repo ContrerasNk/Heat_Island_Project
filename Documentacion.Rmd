@@ -1,5 +1,4 @@
 ---
-<<<<<<< HEAD
 title: "Análisis de las variables que inciden en la formación de islas de calor urbanas de los últimos cinco veranos en la ciudad de Jesús María, Lima Metropolitana."
 author: "Contreras y Flores"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
@@ -11,12 +10,7 @@ output:
       collapsed: false
       smooth_scroll: true
 ---
-=======
-title: "Análisis de Islas de Calor en Lima Metropolitana"
-author: "Contreras Huerta Julio Cesar y Flores Farfán Jair Francisco"
-date: "7/10/2021"
-output: html_document
----
+
 ```{r , eval=FALSE}
 # librerias
 library(tidyverse)
@@ -29,12 +23,12 @@ library(cptcity)
 library(leaflet)
 library(leaflet.extras)
 ```
+
 ```{r , eval=FALSE}
 # Inicializando sesion en GEE
 ee_Initialize('juliocontreras1', drive =TRUE)
 ```
 # Análisis de las variables que inciden en la formación de islas de calor urbanas de los últimos cinco veranos en la ciudad de Jesús María, Lima Metropolitana.
->>>>>>> 075909d4c681ac53130e65806193a2ba7c7f59d6
 
 # Introducción
 Podemos definir una isla de calor urbano en una ciudad cuando su equilibrio térmico se ve afectado por el aumento de la absorción de la radiación solar, el aumento del calor sensible liberado por las estructuras urbanas, la reducción de la vegetación en las ciudades y el aumento de la radiación infrarroja. Este calor adicional acumulado y liberado en el entorno urbano hace que la temperatura sea más alta en comparación con los alrededores, esto se conoce como isla de calor urbano (UHI). (Meneses T. e Iral P.; 2017).
@@ -92,11 +86,17 @@ Según la Municipalidad de Jesús María se establecieron nueve sectores vecinal
 
  
 ```{r,eval=FALSE}
+options(warn=-1) # no mostrar warnings
 # Este es un mapa dinamico
 
 # Datos
-SuelosJM <- ee$FeatureCollection('users/juliocontreras1/JesusMSueloU')
-jm <- ee_as_sf(SuelosJM) %>% st_cast("MULTIPOLYGON")
+# SuelosJM <- ee$FeatureCollection('users/juliocontreras1/shapes/JMSectores')
+# jm <- st_read("/home/contreras/Deskto
+# jm <- ee_as_sf(SuelosJM) #%>% st_cast('POLYGON') %>% st_cast('POLYGON')
+# jm <- geojsonsf::sf_geojson(jm)
+# plot(st_cast(st_geometry(), 'MULTILINESTRING'))
+
+jm <- st_read("Data/Shps/JMSectores.shp")
 
 # Colores y variables necesarias para generar grupos
 Number_JmType <- jm$Type %>% unique() %>% length() # Numero de especies
@@ -120,14 +120,12 @@ leaflet() %>%
                 opacity = 0.8, group = "Leyenda") %>% 
   addLayersControl(overlayGroups = "SuelosU", 
                    options = layersControlOptions(collapsed = TRUE)) #%>% # Falta popup = ~colum la hacer clic
+options(warn=-1) 
 ```
 
 ```{r,eval=FALSE}
 # Este es más dinámico
 
-# Datos
-# SuelosJM <- ee$FeatureCollection('users/juliocontreras1/JesusMSueloU')
-# jm <- ee_as_sf(SuelosJM) %>% st_cast("MULTIPOLYGON")
 
 Number_JmType <- jm$Type %>% unique() %>% length() # Numero de especies
 Names_JmType <- jm$Type %>% unique() ## Nombre de las especies
@@ -166,10 +164,7 @@ Spp_Map <- Spp_Map %>%
 Spp_Map
 ```
 
-```{r echo = FALSE, fig.align='center', comment='Figura 2. Sectores del barrio en el distrito de Jesús María'}
-knitr::include_graphics('Img/Sectores.png')
-```
-
+ 
 #### 5.1.2. Recopilación de la base de datos hidrometeorológicos y de calidad del aire del SENAMHI	
 
 Las variables de temperatura, humedad relativa, precipitación, velocidad del viento fueron extraídas del sitio web oficial de SENHAMI mediante web scrapping en Python en las fechas disponibles desde 2015-05-01 hasta la fecha actual.
@@ -190,7 +185,7 @@ Esta variable es una de las más importantes debido a que proporciona una imagen
 
 ##### *Landsat DN a Radiance*
 
-Hay dos fórmulas que se pueden utilizar para convertir DN en luminosidad; el método que utilice depende de los datos de calibración de la escena disponibles en los archivos de encabezado. Un método utiliza los valores de ganancia y sesgo (o compensación) del archivo de encabezado. El otro método utiliza los factores de escala de radiancia espectral LMin y LMax.
+Hay dos fórmulas que se pueden utilizar para convertir DN en luminosidad; el método que se utilizó depende de los datos de calibración de la escena disponibles en los archivos de encabezado. Un método utiliza los valores de ganancia y sesgo (o compensación) del archivo de encabezado. El otro método utiliza los factores de escala de radiancia espectral LMin y LMax.
 
 
 Aunque, el método utilizado en Landsat 8 OLI / TIRS es como el método de ganancia y sesgo:
@@ -198,6 +193,39 @@ Aunque, el método utilizado en Landsat 8 OLI / TIRS es como el método de ganan
 $$ L_{\lambda} = M_{\lambda} + Q_{cal} + A_{L}$$
 
 Donde $L_{\lambda}$ es un resplandor y $M_{\lambda}$ y $A_{L}$ son Radiance Band Multiband y Add, respectivamente. La banda térmica utilizada en el Landsat 8 es la número 10 con su correspondiente DN $(𝑄_{cal})$. Estos datos se pueden encontrar en los metadatos de Landsat 8.
+
+```{r}
+# Datos
+
+centroid <- st_geometry(st_centroid(st_convex_hull(jm)[1,])) %>% sf_as_ee()
+
+
+lista <- ee$ImageCollection('LANDSAT/LC08/C01/T1_TOA')$
+        filterDate('2015-12-21','2016-04-21')$
+        filterBounds(centroid)
+
+catalogo <- ee_get_date_ic(lista)
+
+
+
+
+# eeImageCollection <- ee$ImageCollection('LANDSAT/LC08/C01/T1')$
+#   filterDate('2015-12-21', '2016-03-21')$
+#   filterBounds(centroid)$
+#   filterMetadata('CLOUD_COVER','less_than',50)
+# 
+# catalogo <- ee_get_date_img(eeImageCollection)
+
+
+# trueColor432 = dataset.select(['B4', 'B3', 'B2'])
+# trueColor432Vis = {
+#   min: 0.0,
+#   max: 30000.0,
+# };
+# Map.setCenter(6.746, 46.529, 6);
+# Map.addLayer(trueColor432, trueColor432Vis, 'True Color (432)');
+```
+
 
 ##### *Radiación a temperatura de brillo en grados Celsius*
 
