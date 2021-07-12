@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 title: "Análisis de las variables que inciden en la formación de islas de calor urbanas de los últimos cinco veranos en la ciudad de Jesús María, Lima Metropolitana."
 author: "Contreras y Flores"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
@@ -10,6 +11,30 @@ output:
       collapsed: false
       smooth_scroll: true
 ---
+=======
+title: "Análisis de Islas de Calor en Lima Metropolitana"
+author: "Contreras Huerta Julio Cesar y Flores Farfán Jair Francisco"
+date: "7/10/2021"
+output: html_document
+---
+```{r , eval=FALSE}
+# librerias
+library(tidyverse)
+library(sf)
+library(rgee)
+library(mapedit)
+library(raster)
+library(tmap)
+library(cptcity)
+library(leaflet)
+library(leaflet.extras)
+```
+```{r , eval=FALSE}
+# Inicializando sesion en GEE
+ee_Initialize('juliocontreras1', drive =TRUE)
+```
+# Análisis de las variables que inciden en la formación de islas de calor urbanas de los últimos cinco veranos en la ciudad de Jesús María, Lima Metropolitana.
+>>>>>>> 075909d4c681ac53130e65806193a2ba7c7f59d6
 
 # Introducción
 Podemos definir una isla de calor urbano en una ciudad cuando su equilibrio térmico se ve afectado por el aumento de la absorción de la radiación solar, el aumento del calor sensible liberado por las estructuras urbanas, la reducción de la vegetación en las ciudades y el aumento de la radiación infrarroja. Este calor adicional acumulado y liberado en el entorno urbano hace que la temperatura sea más alta en comparación con los alrededores, esto se conoce como isla de calor urbano (UHI). (Meneses T. e Iral P.; 2017).
@@ -64,6 +89,82 @@ knitr::include_graphics('Img/Metodologia.jpg')
 #### 5.1.1. Descripción de la zona de estudio 
 En este apartado, produciremos información relevante dentro del distrito de Jesús María, digitalizando el planeamiento urbanístico del distrito y clasificándolo por sectores vecinales y por los tipos de áreas que predominan.
 Según la Municipalidad de Jesús María se establecieron nueve sectores vecinales para una mejor administración.
+
+ 
+```{r,eval=FALSE}
+# Este es un mapa dinamico
+
+# Datos
+SuelosJM <- ee$FeatureCollection('users/juliocontreras1/JesusMSueloU')
+jm <- ee_as_sf(SuelosJM) %>% st_cast("MULTIPOLYGON")
+
+# Colores y variables necesarias para generar grupos
+Number_JmType <- jm$Type %>% unique() %>% length() # Numero de especies
+Names_JmType <- jm$Type %>% unique() # Nombre de las especies
+Colores <- c("#ef3b2c", "#ffffff", "#807dba", "#33a02c", "#fed976", 
+             "#000000", "#0570b0") # colorbrewer2, Colores de las especies seran
+pal <- colorFactor(Colores, domain = Names_JmType) # Generamos la paleta
+
+# Mapa SuelosU
+leaflet() %>% 
+  addTiles() %>% 
+  addPolygons(data = jm,
+              fillColor = ~pal(Type),
+              fillOpacity = 0.8,
+              weight = 0.5,
+              label = ~Type,
+              color = "#000000",
+              group = "SuelosU") %>%
+  addLegend(data = jm, "bottomright", pal = pal, 
+                values = ~Type, title = "Suelos Urbanos", 
+                opacity = 0.8, group = "Leyenda") %>% 
+  addLayersControl(overlayGroups = "SuelosU", 
+                   options = layersControlOptions(collapsed = TRUE)) #%>% # Falta popup = ~colum la hacer clic
+```
+
+```{r,eval=FALSE}
+# Este es más dinámico
+
+# Datos
+# SuelosJM <- ee$FeatureCollection('users/juliocontreras1/JesusMSueloU')
+# jm <- ee_as_sf(SuelosJM) %>% st_cast("MULTIPOLYGON")
+
+Number_JmType <- jm$Type %>% unique() %>% length() # Numero de especies
+Names_JmType <- jm$Type %>% unique() ## Nombre de las especies
+Colores <- c("#ef3b2c", "#ffffff", "#807dba", "#33a02c", "#fed976", 
+             "#000000", "#0570b0") # colorbrewer2, Colores de las especies seran
+pal <- colorFactor(Colores, domain = Names_JmType) # Generamos la paleta
+
+
+# Partimos un sf en varios sf
+Spp_Pres <- list()
+for (i in 1:length(Names_JmType)) {
+  Spp_Pres[[i]] <- jm %>% dplyr::filter(Type == Names_JmType[i])
+}
+names(Spp_Pres) <- Names_JmType
+
+# Ploteamos cada sf, pero sin leyenda
+Spp_Map <- leaflet() %>% addTiles()
+for (i in 1:length(Spp_Pres)) {
+  Spp_Map <- Spp_Map %>%
+    addPolygons(data = Spp_Pres[[i]],
+              fillColor = ~pal(Type),
+              fillOpacity = 0.8,
+              weight = 0.5,
+              label = ~Type,
+              color = "#000000",
+              group =  Names_JmType[i])
+}
+
+# Agremos leyenda y su visualizador por grupos, tanto leyenda como suelos
+Spp_Map <- Spp_Map %>%
+  addLegend(data = jm, "bottomright", pal = pal, 
+                values = ~Type, title = "Suelos Urbanos", 
+                opacity = 0.8, group = "Leyenda") %>%
+  addLayersControl(overlayGroups = c("Leyenda", Names_JmType),
+                                      options = layersControlOptions(collapsed = TRUE))
+Spp_Map
+```
 
 ```{r echo = FALSE, fig.align='center', comment='Figura 2. Sectores del barrio en el distrito de Jesús María'}
 knitr::include_graphics('Img/Sectores.png')
