@@ -3,6 +3,13 @@ title: "Análisis de las variables que inciden en la formación de islas de calo
 author: "Contreras y Flores"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: 
+  pdf_document:
+    fig_caption: yes
+    latex_engine: xelatex
+toc: true
+toc_depth: 5
+fig_caption: true
+mainfont: Times New Roman      
   html_document:
     toc: true
     toc_depth: 5
@@ -28,7 +35,9 @@ library(leaflet.extras)
 # Inicializando sesion en GEE
 ee_Initialize('juliocontreras1', drive =TRUE)
 ```
+
 # Análisis de las variables que inciden en la formación de islas de calor urbanas de los últimos cinco veranos en la ciudad de Jesús María, Lima Metropolitana.
+
 
 # Introducción
 Podemos definir una isla de calor urbano en una ciudad cuando su equilibrio térmico se ve afectado por el aumento de la absorción de la radiación solar, el aumento del calor sensible liberado por las estructuras urbanas, la reducción de la vegetación en las ciudades y el aumento de la radiación infrarroja. Este calor adicional acumulado y liberado en el entorno urbano hace que la temperatura sea más alta en comparación con los alrededores, esto se conoce como isla de calor urbano (UHI). (Meneses T. e Iral P.; 2017).
@@ -119,8 +128,8 @@ leaflet() %>%
                 values = ~Type, title = "Suelos Urbanos", 
                 opacity = 0.8, group = "Leyenda") %>% 
   addLayersControl(overlayGroups = "SuelosU", 
-                   options = layersControlOptions(collapsed = TRUE)) #%>% # Falta popup = ~colum la hacer clic
-options(warn=-1) 
+                   options = layersControlOptions(collapsed = TRUE))#%>% # Falta popup = ~colum la hacer clic
+       
 ```
 
 ```{r,eval=FALSE}
@@ -346,7 +355,7 @@ Y otras islas calor...
 
 a) El NDVI es mayor en áreas de recreación por tener áreas verdes y menor en áreas comerciales, así mismo los equipos y áreas residenciales tienen valores promedio bajos debido a su escasa o nula vegetación.
 
-```{r echo = FALSE, fig.align='center', comment='Figura4. Verano 2016-2020 Promedio del NDVI por tipo de área.'}
+```{r echo = FALSE, fig.align='center', out.width = "80%", comment='Figura4. Verano 2016-2020 Promedio del NDVI por tipo de área.'}
 knitr::include_graphics('Img/interpretacionislas.png')
 ```
 
@@ -395,7 +404,7 @@ Tabla de correlación...
 ### 7.4. Regresión lineal de variables hidrometeorológicas y de calidad ambiental
 Con los datos extraídos disponibles, realizamos una regresión lineal múltiple para visualizar la influencia de las variables sobre la temperatura. Los resultados fueron los siguientes:
 
-$$ T°_{2016}= 33.6102 + 0.0007 × PM_{10} + 0.0144 × O_{3} + 0.008 × NO_{2} + 0.6376 × CO - \\ \hspace{2em}1.1466 × Precipitation - 0.1415 × Humidity + 0.3609 × WindSpeed$$
+$$ T°_{2016}= 33.6102 + 0.0007 × PM_{10} + 0.0144 × O_{3} + 0.008 × NO_{2} + 0.6376 × CO - 1.1466 × Precipitation - 0.1415 × Humidity + 0.3609 × WindSpeed$$
 Y las otras regresiones...
 
 
