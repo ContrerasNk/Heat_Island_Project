@@ -29,6 +29,7 @@ library(tmap)
 library(cptcity)
 library(leaflet)
 library(leaflet.extras)
+library(MASS)
 ```
 
 ```{r , eval=FALSE}
@@ -97,23 +98,19 @@ Según la Municipalidad de Jesús María se establecieron nueve sectores vecinal
 ```{r,eval=FALSE}
 options(warn=-1) # no mostrar warnings
 # Este es un mapa dinamico
-
 # Datos
 # SuelosJM <- ee$FeatureCollection('users/juliocontreras1/shapes/JMSectores')
 # jm <- st_read("/home/contreras/Deskto
 # jm <- ee_as_sf(SuelosJM) #%>% st_cast('POLYGON') %>% st_cast('POLYGON')
 # jm <- geojsonsf::sf_geojson(jm)
 # plot(st_cast(st_geometry(), 'MULTILINESTRING'))
-
 jm <- st_read("Data/Shps/JMSectores.shp")
-
 # Colores y variables necesarias para generar grupos
 Number_JmType <- jm$Type %>% unique() %>% length() # Numero de especies
 Names_JmType <- jm$Type %>% unique() # Nombre de las especies
 Colores <- c("#ef3b2c", "#ffffff", "#807dba", "#33a02c", "#fed976", 
              "#000000", "#0570b0") # colorbrewer2, Colores de las especies seran
 pal <- colorFactor(Colores, domain = Names_JmType) # Generamos la paleta
-
 # Mapa SuelosU
 leaflet() %>% 
   addTiles() %>% 
@@ -129,13 +126,10 @@ leaflet() %>%
                 opacity = 0.8, group = "Leyenda") %>% 
   addLayersControl(overlayGroups = "SuelosU", 
                    options = layersControlOptions(collapsed = TRUE))#%>% # Falta popup = ~colum la hacer clic
-       
 ```
 
 ```{r,eval=FALSE}
 # Este es más dinámico
-
-
 Number_JmType <- jm$Type %>% unique() %>% length() # Numero de especies
 Names_JmType <- jm$Type %>% unique() ## Nombre de las especies
 Colores <- c("#ef3b2c", "#ffffff", "#807dba", "#33a02c", "#fed976", 
@@ -199,7 +193,9 @@ Hay dos fórmulas que se pueden utilizar para convertir DN en luminosidad; el m�
 
 Aunque, el método utilizado en Landsat 8 OLI / TIRS es como el método de ganancia y sesgo:
 
-$$ L_{\lambda} = M_{\lambda} + Q_{cal} + A_{L}$$
+$$L_{\lambda} = M_{\lambda} + Q_{cal} + A_{L}$$
+
+
 
 Donde $L_{\lambda}$ es un resplandor y $M_{\lambda}$ y $A_{L}$ son Radiance Band Multiband y Add, respectivamente. La banda térmica utilizada en el Landsat 8 es la número 10 con su correspondiente DN $(𝑄_{cal})$. Estos datos se pueden encontrar en los metadatos de Landsat 8.
 
@@ -210,10 +206,11 @@ centroid <- st_geometry(st_centroid(st_convex_hull(jm)[1,])) %>% sf_as_ee()
 
 
 lista <- ee$ImageCollection('LANDSAT/LC08/C01/T1_TOA')$
-        filterDate('2015-12-21','2016-04-21')$
-        filterBounds(centroid)
+        filterDate("2015-12-21","2016-4-21")$
+        filterBounds(centroid)$
+        filterMetadata('CLOUD_COVER','less_than',40)
 
-catalogo <- ee_get_date_ic(lista)
+(catalogo <- ee_get_date_ic(lista))
 
 
 
@@ -235,6 +232,90 @@ catalogo <- ee_get_date_ic(lista)
 # Map.addLayer(trueColor432, trueColor432Vis, 'True Color (432)');
 ```
 
+```{r}
+# Define a region of interest with sf
+
+# ee_roi <- st_read("Data/Shps/JMSectores.shp")
+centroid <- st_centroid(st_convex_hull(jm)[1,])
+X <- (st_coordinates(centroid))[,"X"]
+Y <- (st_coordinates(centroid))[,"Y"]
+ee_roi <- centroid %>% sf_as_ee()
+# ee_roi <- st_read(system.file("shape/nc.shp", package="sf")) %>%
+  # st_geometry() %>%
+  # st_transform(crs = 4326) %>%
+  # sf_as_ee()
+
+# Search into the Earth Engine’s public data archive
+# ee_search_dataset() %>%
+#   ee_search_tags("L8","SR",logical_operator = "AND") %>%
+#   ee_search_display()
+
+dataset <- ee$ImageCollection('LANDSAT/LC08/C01/T1_SR')
+
+
+# Filter out poor quality pixels
+getQABits <- function(image, qa) {
+  # Convert binary (character) to decimal (little endian)
+  qa <- sum(2^(which(rev(unlist(strsplit(as.character(qa), "")) == 1))-1))
+  # Return a mask band image, giving the qa value.
+  image$bitwiseAnd(qa)$lt(1)
+}
+
+# Using getQABits we construct a single-argument function 'mod13A2_clean'
+l8_clean <- function(img) {
+  # Calculate the NDVI
+  ndvi_values <- img$normalizedDifference(c("B5","B4"))
+
+  # Extract the quality band
+  ndvi_qa <- img$select("pixel_qa")
+
+  # Select pixels to mask
+  quality_mask <- getQABits(ndvi_qa, "00000100001")
+
+  # Mask pixels with value zero.
+  ndvi_values %>%
+    ee$Image$updateMask(quality_mask) %>%
+    ee$Image$copyProperties(img, list("system:time_start"))
+}
+
+
+# Create a monthly composite
+ndvi_composite <- dataset$
+  filterDate("2015-12-21","2016-4-21")$
+  filter(ee$Filter$calendarRange(1, field = "month"))$
+  map(l8_clean)$
+  median()
+
+# Display results
+scale <- 0.0001
+Map$setCenter(lon = X,lat = Y,zoom = 15)
+Map$addLayer(
+  eeObject = ndvi_composite,
+  visParams = list(
+    min = 0.2 ,
+    max = 0.7 ,
+    palette = cpt("grass_ndvi", 10)
+  )
+) + Map$addLayer(ee_roi)
+
+# Download raster
+# ee_raster <- ee_as_raster(
+#   image = ndvi_composite,
+#   region = ee_roi$geometry(),
+#   dsn = "/home/aybarpc01/ndvi_l8.tif",
+#   scale = 2000,
+#   via = "drive"
+# )
+
+# ee_manage_cancel_all_running_task()
+ndvi_mean_sf <- ee_extract(
+  x = ndvi_composite,
+  y = ee_roi,
+  fun = ee$Reducer$mean(),
+  scale = 2000,
+  sf = TRUE
+)
+```
 
 ##### *Radiación a temperatura de brillo en grados Celsius*
 
